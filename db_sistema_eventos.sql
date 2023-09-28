@@ -68,11 +68,11 @@ CREATE TABLE IF NOT EXISTS ingressos
 
 
 INSERT INTO clientes (nome, email, telefone) VALUES
-    ('Cliente 1', 'cliente1@example.com', '123-456-7890'),
-    ('Cliente 2', 'cliente2@example.com', '987-654-3210'),
-    ('Cliente 3', 'cliente3@example.com', '555-555-5555'),
-    ('Cliente 4', 'cliente4@example.com', '999-888-7777'),
-    ('Cliente 5', 'cliente5@example.com', '111-222-3333');
+    ('Cliente 1', 'cliente1@example.com', '(47)-91111-1111'),
+    ('Cliente 2', 'cliente2@example.com', '(47)-91111-1112'),
+    ('Cliente 3', 'cliente3@example.com', '(47)-91111-1113'),
+    ('Cliente 4', 'cliente4@example.com', '(47)-91111-1114'),
+    ('Cliente 5', 'cliente5@example.com', '(47)-91111-1115');
 
 INSERT INTO tipoeventos (descricao) VALUES
     ('Concerto'),

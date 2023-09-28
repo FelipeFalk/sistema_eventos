@@ -18,7 +18,7 @@ def showMenu():
 
     return op
 
-def showTabelas():
+def showTabelas(Ingresso = False):
     #os.system("cls")
     print("Tabelas - Opções")
     print("1 - Cliente")
@@ -27,6 +27,10 @@ def showTabelas():
     print("4 - Venda")
     print("5 - Evento")
     print("6 - Tipo Evento")
+
+    if(Ingresso == True):
+        print("7 - Ingressos")
+
     print("0 - Sair")
 
     op = int(input("Informe a tabela desejada\n"))

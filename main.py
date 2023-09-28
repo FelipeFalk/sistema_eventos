@@ -14,6 +14,52 @@ conn.autocommit = True
 
 cond = True
 
+def showConsultas(opcaoTabela):
+
+        if opcaoTabela == 1:#Cliente
+            
+            cursor.execute("SELECT * from clientes ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Cliente", "Nome", "Email", "Telefone"]))
+
+        elif opcaoTabela == 2:#Funcionarios
+            
+            cursor.execute("SELECT * from funcionarios ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Funcionário","Nome","Email","ID Cargo"]))
+
+        elif opcaoTabela == 3:#Cargo
+
+            cursor.execute("SELECT * from cargos ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Cargo","Descrição"]))
+
+        elif opcaoTabela == 4:#Venda
+
+            cursor.execute("SELECT * from vendas ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"]))
+
+        elif opcaoTabela == 5:#Evento
+
+            cursor.execute("SELECT * from eventos ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"]))
+
+        elif opcaoTabela == 6:#TipoEvento
+
+            cursor.execute("SELECT * from tipoeventos ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Tipo Evento", "Descrição"]))
+
+        elif opcaoTabela == 7:#Ingresso
+
+            cursor.execute("SELECT * from ingressos ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Ingresso", "ID Evento", "ID Vento", "Valor Ingresso", "Quantidade"]))
+
+        input("\nAperte qualquer tecla para continuar")
+
 while cond == True:
     opcaoMenu = showMenu()
 
@@ -103,30 +149,36 @@ while cond == True:
         opcaoTabela = showTabelas()
 
         if opcaoTabela == 1:#Cliente
+            showConsultas(1)
             chave, nome, email, telefone = solicita_informacoes("Cliente", "chave", "nome", "email", "telefone")
             cursor.execute("UPDATE clientes SET nome = %s, email = %s, telefone = %s WHERE idcliente = %s;", (nome, email, telefone, chave))
 
         elif opcaoTabela == 2:#Funcionarios
+            showConsultas(2)
             chave, nome, email = solicita_informacoes("Funcionario","chave","nome","email")
             idcargo = solicita_informacoes("Tipo Cargo", "chave")
             cursor.execute("UPDATE funcionarios SET nome = %s, email = %s, idcargo = %s WHERE idfuncionario = %s;", (nome, email, idcargo, chave))
 
         elif opcaoTabela == 3:#Cargo
+            showConsultas(3)
             chave, descricao = solicita_informacoes("Cargo", "chave","descricao")
             cursor.execute("UPDATE cargos SET descricao = %s WHERE idcargo = %s;", (descricao, chave))
 
         elif opcaoTabela == 4:#Venda
+            showConsultas(4)
             idCliente = solicita_informacoes("Cliente", "chave")
             idFuncionario = solicita_informacoes("Funcionario", "chave")
             chave, dtCompra = solicita_informacoes("Venda", "chave", "data_compra")
             cursor.execute("UPDATE vendas SET idcliente = %s, idfuncionario = %s, dtcompra = %s WHERE idvenda = %s;",(idCliente, idFuncionario, dtCompra, chave))
         
         elif opcaoTabela == 5:#Evento
+            showConsultas(5)
             chave, local, maxingressos, dtEvento = solicita_informacoes("Evento","chave","local","maxingressos","data_evento")
             idTipo = solicita_informacoes("Tipo Evento", "chave")
             cursor.execute("UPDATE eventos SET local = %s, maxingressos = %s, data = %s, idtipo = %s WHERE idevento = %s ;",(local, maxingressos, dtEvento, idTipo, chave))
         
         elif opcaoTabela == 6:#TipoEvento
+            showConsultas(6)
             chave, descricao = solicita_informacoes("Tipo Evento", "chave", "descricao")
             cursor.execute("UPDATE tipoeventos SET descricao = %s WHERE idtipoevento = %s;", (descricao, chave))
         
@@ -135,70 +187,41 @@ while cond == True:
         opcaoTabela = showTabelas()
 
         if opcaoTabela == 1:#Cliente
+            showConsultas(1)
             chave = solicita_informacoes("Cliente", "chave")
             cursor.execute(f"DELETE FROM clientes WHERE idcliente = {chave};")
 
         elif opcaoTabela == 2:#Funcionarios
+            showConsultas(2)
             chave = solicita_informacoes("Funcionario","chave")
             cursor.execute(f"DELETE FROM funcionarios WHERE idfuncionario = {chave};")
 
         elif opcaoTabela == 3:#Cargo
+            showConsultas(3)
             chave = solicita_informacoes("Cargo", "chave")
             cursor.execute(f"DELETE FROM cargos WHERE descricao = {chave};")
 
         elif opcaoTabela == 4:#Venda
+            showConsultas(4)
             chave = solicita_informacoes("Venda", "chave")
             cursor.execute(f"DELETE FROM vendas WHERE idvenda = {chave};")
         
         elif opcaoTabela == 5:#Evento
+            showConsultas(5)
             chave = solicita_informacoes("Evento","chave")
             cursor.execute(f"DELETE eventos WHERE idevento = {chave} ;")
         
         elif opcaoTabela == 6:#TipoEvento
+            showConsultas(6)
             chave = solicita_informacoes("Tipo Evento", "chave")
             cursor.execute(f"DELETE tipoeventos WHERE idtipoevento = {chave};")
         
     #Consulta
     elif opcaoMenu == 4:
-        opcaoTabela = showTabelas()
+        opcaoTabela = showTabelas(True)
 
-        if opcaoTabela == 1:#Cliente
-            
-            cursor.execute("SELECT * from clientes ORDER BY 1 ASC")
-            resultado = cursor.fetchall()
-            print(tabulate(resultado, ["ID Cliente", "Nome", "Email", "Telefone"]))
-
-        elif opcaoTabela == 2:#Funcionarios
-            
-            cursor.execute("SELECT * from funcionarios ORDER BY 1 ASC")
-            resultado = cursor.fetchall()
-            print(tabulate(resultado, ["ID Funcionário","Nome","Email","ID Cargo"]))
-
-        elif opcaoTabela == 3:#Cargo
-
-            cursor.execute("SELECT * from cargos ORDER BY 1 ASC")
-            resultado = cursor.fetchall()
-            print(tabulate(resultado, ["ID Cargo","Descrição"]))
-
-        elif opcaoTabela == 4:#Venda
-
-            cursor.execute("SELECT * from vendas ORDER BY 1 ASC")
-            resultado = cursor.fetchall()
-            print(tabulate(resultado, ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"]))
-
-        elif opcaoTabela == 5:#Evento
-
-            cursor.execute("SELECT * from eventos ORDER BY 1 ASC")
-            resultado = cursor.fetchall()
-            print(tabulate(resultado, ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"]))
-
-        elif opcaoTabela == 6:#TipoEvento
-
-            cursor.execute("SELECT * from tipoeventos ORDER BY 1 ASC")
-            resultado = cursor.fetchall()
-            print(tabulate(resultado, ["ID Tipo Evento", "Descrição"]))
-
-        input("\nAperte qualquer tecla para continuar")
+        showConsultas(opcaoTabela)
+    
 
     #Relatórios    
     elif opcaoMenu == 5:
@@ -223,6 +246,8 @@ while cond == True:
         input("\nAperte qualquer tecla para continuar")
 
     os.system("cls")
+
+
 
 
 
