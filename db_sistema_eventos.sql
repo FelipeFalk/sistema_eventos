@@ -67,3 +67,53 @@ CREATE TABLE IF NOT EXISTS ingressos
 );
 
 
+INSERT INTO clientes (nome, email, telefone) VALUES
+    ('Cliente 1', 'cliente1@example.com', '123-456-7890'),
+    ('Cliente 2', 'cliente2@example.com', '987-654-3210'),
+    ('Cliente 3', 'cliente3@example.com', '555-555-5555'),
+    ('Cliente 4', 'cliente4@example.com', '999-888-7777'),
+    ('Cliente 5', 'cliente5@example.com', '111-222-3333');
+
+INSERT INTO tipoeventos (descricao) VALUES
+    ('Concerto'),
+    ('Conferência'),
+    ('Exposição'),
+    ('Teatro'),
+    ('Esporte');
+
+INSERT INTO eventos (local, maxIngressos, data, idTipo) VALUES
+    ('Local 1', 100, '2023-10-15', 1),
+    ('Local 2', 200, '2023-11-20', 2),
+    ('Local 3', 150, '2023-12-05', 3),
+    ('Local 4', 50, '2023-10-30', 4),
+    ('Local 5', 300, '2023-12-15', 5);
+
+INSERT INTO cargos (descricao) VALUES
+    ('Gerente'),
+    ('Vendedor'),
+    ('Atendente'),
+    ('Técnico'),
+    ('Analista');
+
+INSERT INTO funcionarios (nome, email, idCargo) VALUES
+    ('Funcionário 1', 'funcionario1@example.com', 1),
+    ('Funcionário 2', 'funcionario2@example.com', 2),
+    ('Funcionário 3', 'funcionario3@example.com', 2),
+    ('Funcionário 4', 'funcionario4@example.com', 3),
+    ('Funcionário 5', 'funcionario5@example.com', 4);
+
+
+INSERT INTO vendas (idCliente, idFuncionario, dtCompra) VALUES
+    (1, 1, '2023-10-16'),
+    (2, 2, '2023-11-21'),
+    (3, 3, '2023-12-06'),
+    (4, 4, '2023-10-31'),
+    (5, 5, '2023-12-16');
+
+
+INSERT INTO ingressos (idEvento, idVenda, valorIngresso, quantidade) VALUES
+    (1, 1, 50.00, 2),
+    (2, 2, 30.00, 3),
+    (3, 3, 25.00, 5),
+    (4, 4, 40.00, 1),
+    (5, 5, 20.00, 4);
