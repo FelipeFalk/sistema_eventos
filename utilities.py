@@ -12,7 +12,6 @@ def showMenu():
     print("4 - Consulta")
     print("5 - Relatórios")
     print("0 - Sair")
-    print("\n")
 
     op = int(input("Informe a opção desejada\n"))
 
