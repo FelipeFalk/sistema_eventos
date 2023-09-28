@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS cargos
 CREATE TABLE IF NOT EXISTS funcionarios
 (
     idFuncionario SERIAL,
-    nome VARCHAR(100),
-    email VARCHAR(255) UNIQUE,
+    nome VARCHAR(60),
+    email VARCHAR(100) UNIQUE,
     idCargo integer NOT NULL,
     PRIMARY KEY (idFuncionario),
     CONSTRAINT fk_funcionario_cargo FOREIGN KEY (idCargo) REFERENCES cargos (idCargo) ON DELETE CASCADE 

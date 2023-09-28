@@ -32,6 +32,12 @@ while cond == True:
 
         elif opcaoTabela == 2:#Funcionarios
             nome, email = solicita_informacoes("Funcionario","nome","email")
+
+            #Mostra Cargos
+            cursor.execute("SELECT * from cargos ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Cargo","Descrição"]))
+
             idcargo = solicita_informacoes("Tipo Cargo", "chave")
             cursor.execute("INSERT INTO funcionarios (nome, email, idcargo) VALUES (%s,%s,%s);", (nome, email, idcargo))
 
@@ -40,16 +46,26 @@ while cond == True:
             cursor.execute(f"INSERT INTO cargos (descricao) VALUES ('{descricao}');")
 
         elif opcaoTabela == 4:#Venda
+
+            #Mostra Clientes
+            cursor.execute("SELECT * from clientes ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Cliente", "Nome", "Email", "Telefone"]))
+
             idCliente = solicita_informacoes("Cliente", "chave")
+
+            #Mostra Funcionarios
+            cursor.execute("SELECT * from funcionarios ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Funcionário","Nome","Email","ID Cargo"]))
+
             idFuncionario = solicita_informacoes("Funcionario", "chave")
             dtCompra = solicita_informacoes("Venda", "data_compra")            
 
-            headers = ["ID Evento", "Local", "Data"]
-
-            cursor.execute("SELECT idevento, local, data FROM eventos;")
+            cursor.execute("SELECT idevento, local, data FROM eventos ORDER BY 1 ASC;")
             resultado = cursor.fetchall()
 
-            print(tabulate(resultado, headers))
+            print(tabulate(resultado, ["ID Evento", "Local", "Data"]))
 
             chaveEvento = solicita_informacoes("Evento", "chave")
 
@@ -69,6 +85,12 @@ while cond == True:
         
         elif opcaoTabela == 5:#Evento
             local, maxingressos, dtEvento = solicita_informacoes("Evento","local","maxingressos","data_evento")
+
+            #Mostra Tipo Evento
+            cursor.execute("SELECT * from tipoeventos ORDER BY 1 ASC")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Tipo Evento", "Descrição"]))
+
             idTipo = solicita_informacoes("Tipo Evento", "chave")
             cursor.execute("INSERT INTO eventos (local, maxingressos, data, idtipo) VALUES (%s,%s,%s,%s);",(local, maxingressos, dtEvento, idTipo))
         
@@ -142,45 +164,74 @@ while cond == True:
 
         if opcaoTabela == 1:#Cliente
             
-            cursor.execute("SELECT * from clientes")
+            cursor.execute("SELECT * from clientes ORDER BY 1 ASC")
             resultado = cursor.fetchall()
             print(tabulate(resultado, ["ID Cliente", "Nome", "Email", "Telefone"]))
 
         elif opcaoTabela == 2:#Funcionarios
             
-            cursor.execute("SELECT * from funcionarios")
+            cursor.execute("SELECT * from funcionarios ORDER BY 1 ASC")
             resultado = cursor.fetchall()
             print(tabulate(resultado, ["ID Funcionário","Nome","Email","ID Cargo"]))
 
         elif opcaoTabela == 3:#Cargo
 
-            cursor.execute("SELECT * from cargos")
+            cursor.execute("SELECT * from cargos ORDER BY 1 ASC")
             resultado = cursor.fetchall()
             print(tabulate(resultado, ["ID Cargo","Descrição"]))
 
         elif opcaoTabela == 4:#Venda
 
-            cursor.execute("SELECT * from vendas")
+            cursor.execute("SELECT * from vendas ORDER BY 1 ASC")
             resultado = cursor.fetchall()
             print(tabulate(resultado, ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"]))
 
         elif opcaoTabela == 5:#Evento
 
-            cursor.execute("SELECT * from eventos")
+            cursor.execute("SELECT * from eventos ORDER BY 1 ASC")
             resultado = cursor.fetchall()
             print(tabulate(resultado, ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"]))
 
         elif opcaoTabela == 6:#TipoEvento
 
-            cursor.execute("SELECT * from tipoeventos")
+            cursor.execute("SELECT * from tipoeventos ORDER BY 1 ASC")
             resultado = cursor.fetchall()
             print(tabulate(resultado, ["ID Tipo Evento", "Descrição"]))
 
+        input("\nAperte qualquer tecla para continuar")
+
+    #Relatórios    
+    elif opcaoMenu == 5:
+        opcaoRelatorio = showRelatorio()
+
+        if opcaoRelatorio == 1:
+            cursor.execute("SELECT e.idEvento, e.local AS local_do_evento, e.data AS data_do_evento, e.maxIngressos AS limite_de_ingressos, COUNT(v.idVenda) AS total_de_vendas, SUM(i.valorIngresso * i.quantidade) AS receita_total FROM eventos e LEFT JOIN ingressos i ON e.idEvento = i.idEvento LEFT JOIN vendas v ON i.idVenda = v.idVenda GROUP BY e.idEvento, e.local, e.data, e.maxIngressos ORDER BY data_do_evento ASC;")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Evento", "Local", "Data do Evento", "Limite Ingressos", "Ingressos Vendidos", "Receita Total"]))
+
+        elif opcaoRelatorio == 2:
+            cursor.execute("SELECT f.idFuncionario, f.nome AS nome_do_funcionario, COUNT(v.idVenda) AS total_de_vendas, SUM(i.valorIngresso * i.quantidade) AS receita_total FROM funcionarios f LEFT JOIN vendas v ON f.idFuncionario = v.idFuncionario LEFT JOIN ingressos i ON v.idVenda = i.idVenda GROUP BY f.idFuncionario, f.nome ORDER BY nome_do_funcionario ASC;")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["ID Funcionário", "Nome Funcionário", "Total de Vendas", "Receita Total"]))
+
+        elif opcaoRelatorio == 3:
+
+            cursor.execute("SELECT te.descricao AS tipo_evento, COUNT(e.idEvento) AS quantidade_de_eventos FROM tipoeventos te LEFT JOIN eventos e ON te.idTipoEvento = e.idTipo GROUP BY te.descricao ORDER BY te.descricao ASC;")
+            resultado = cursor.fetchall()
+            print(tabulate(resultado, ["Tipo do Evento", "Quantidade de Eventos"]))
+        
+        input("\nAperte qualquer tecla para continuar")
+
+    os.system("cls")
+
+
+
+
     
     
     
 
-    #Relatórios
+    
 
 
     

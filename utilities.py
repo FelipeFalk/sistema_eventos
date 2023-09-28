@@ -19,7 +19,7 @@ def showMenu():
     return op
 
 def showTabelas():
-    os.system("cls")
+    #os.system("cls")
     print("Tabelas - Opções")
     print("1 - Cliente")
     print("2 - Funcionário")
@@ -28,7 +28,9 @@ def showTabelas():
     print("5 - Evento")
     print("6 - Tipo Evento")
     print("0 - Sair")
+
     op = int(input("Informe a tabela desejada\n"))
+
     return op
 
 def solicita_informacoes(tipo, *infos):
@@ -69,4 +71,15 @@ def solicita_informacoes(tipo, *infos):
     if len(lista_informacoes) == 1:
         return lista_informacoes[0]
     return lista_informacoes
-    
+
+def showRelatorio():
+
+    #os.system("cls")
+    print("Relatórios - Opções")
+    print("1 - Relatório de Vendas por Eventos")
+    print("2 - Relatório de Vendas por Funcionário")
+    print("3 - Relatório de Quantidade de Eventos por Tipo")
+    print("0 - Sair")
+
+    op = int(input("Informe a tabela desejada\n"))
+    return op
