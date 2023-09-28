@@ -1,14 +1,14 @@
-CREATE TABLE IF NOT EXISTS cliente
+CREATE TABLE IF NOT EXISTS clientes
 (
     idCliente SERIAL,
     nome VARCHAR(60),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     telefone VARCHAR(15) NOT NULL,
     PRIMARY KEY (idCliente)
 );
 
 
-CREATE TABLE IF NOT EXISTS tipoevento
+CREATE TABLE IF NOT EXISTS tipoeventos
 (
     idTipoEvento SERIAL,
     descricao VARCHAR(255),
@@ -19,28 +19,28 @@ CREATE TABLE IF NOT EXISTS eventos
 (
     idEvento SERIAL,
     local VARCHAR(255),
-    maxIngressos smallint,
+    maxIngressos integer,
     data date,
     idTipo integer NOT NULL,
     PRIMARY KEY (idEvento),
-    CONSTRAINT fk_eventos_tipoevento FOREIGN KEY (idTipo) REFERENCES tipoevento (idTipoEvento) ON DELETE CASCADE 
+    CONSTRAINT fk_eventos_tipoevento FOREIGN KEY (idTipo) REFERENCES tipoeventos (idTipoEvento) ON DELETE CASCADE 
 );
 
-CREATE TABLE IF NOT EXISTS cargo
+CREATE TABLE IF NOT EXISTS cargos
 (
     idCargo SERIAL,
 	descricao VARCHAR(255),
 	PRIMARY KEY (idCargo)
 );
 
-CREATE TABLE IF NOT EXISTS funcionario
+CREATE TABLE IF NOT EXISTS funcionarios
 (
     idFuncionario SERIAL,
     nome VARCHAR(100),
-    email VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
     idCargo integer NOT NULL,
     PRIMARY KEY (idFuncionario),
-    CONSTRAINT fk_funcionario_cargo FOREIGN KEY (idCargo) REFERENCES cargo (idCargo) ON DELETE CASCADE 
+    CONSTRAINT fk_funcionario_cargo FOREIGN KEY (idCargo) REFERENCES cargos (idCargo) ON DELETE CASCADE 
 );
 
 CREATE TABLE IF NOT EXISTS vendas
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS vendas
 	idFuncionario integer NOT NULL,
     dtCompra date,
     PRIMARY KEY (idVenda),
-	CONSTRAINT fk_vendas_cliente FOREIGN KEY (idCliente) REFERENCES cliente (idCliente) ON DELETE CASCADE ,
-	CONSTRAINT fk_vendas_funcionario FOREIGN KEY (idFuncionario) REFERENCES funcionario (idFuncionario) ON DELETE CASCADE 
+	CONSTRAINT fk_vendas_cliente FOREIGN KEY (idCliente) REFERENCES clientes (idCliente) ON DELETE CASCADE ,
+	CONSTRAINT fk_vendas_funcionario FOREIGN KEY (idFuncionario) REFERENCES funcionarios (idFuncionario) ON DELETE CASCADE 
 );
 
 CREATE TABLE IF NOT EXISTS ingressos
