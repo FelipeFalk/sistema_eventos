@@ -7,3 +7,4 @@
 5. Alterar Usuário e Senha do main.py
 6. Instalar as dependencias do Python no projeto (pip install -r requirements.txt)
 7. Rodar o programa (python main.py)
+8. Código Auxiliar (pip freeze > requirements.txt) | (pipe --version)
