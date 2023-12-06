@@ -1,5 +1,3 @@
-import psycopg2
-import os
 from utilities import *
 from tabulate import tabulate
 
