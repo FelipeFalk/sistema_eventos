@@ -96,10 +96,10 @@ try:
 
             inserts = {
                 1: ("Cliente", "idCliente", "nome", "email", "telefone"),
-                2: ("Funcionario", "idFuncionario","nome", "email"),
+                2: ("Funcionario", "idFuncionario","nome", "email", "idCargo"),
                 3: ("Cargo", "idCargo","descricao"),
-                4: ("Venda", "idVenda","idcliente", "idfuncionario", "dtcompra"),
-                5: ("Evento", "idEvento","local", "maxingressos", "data", "idtipo"),
+                4: ("Venda", "idVenda","idCliente", "idFuncionario", "dtcompra"),
+                5: ("Evento", "idEvento","local", "maxingressos", "data", "idTipo"),
                 6: ("TipoEvento", "idTipoEvento","descricao"),
                 7: ("Ingresso", "idIngresso","idevento", "idvenda", "valoringresso", "quantidade"),
             }
