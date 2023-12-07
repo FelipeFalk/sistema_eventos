@@ -1,10 +1,12 @@
 from neo4j import GraphDatabase
 from utilities import *
 from tabulate import tabulate
+from prettytable import PrettyTable
+import os
 
 uri = "bolt://localhost:7687"  # Update with your Neo4j server URI
 username = "neo4j"
-password = "123"
+password = "12345678"
 
 class Neo4jConnection:
     def __init__(self, uri, user, pwd):
@@ -39,15 +41,24 @@ def showConsultas(opcaoTabela, connection):
         if opcaoTabela in queries:
             result = session.run(queries[opcaoTabela])
             resultado = [record[0] for record in result]
-            headers = ["ID Cliente", "Nome", "Email", "Telefone"] if opcaoTabela == 1 else \
-                      ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoTabela == 2 else \
-                      ["ID Cargo", "Descrição"] if opcaoTabela == 3 else \
-                      ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoTabela == 4 else \
-                      ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"] if opcaoTabela == 5 else \
-                      ["ID Tipo Evento", "Descrição"] if opcaoTabela == 6 else \
-                      ["ID Ingresso", "ID Evento", "ID Vento", "Valor Ingresso", "Quantidade"]
-            print(tabulate(resultado, headers=headers))
+            headers = (
+                    ["ID Cliente", "Nome", "Email", "Telefone"] if opcaoTabela == 1 else \
+                    ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoTabela == 2 else \
+                    ["ID Cargo", "Descrição"] if opcaoTabela == 3 else \
+                    ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoTabela == 4 else \
+                    ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"] if opcaoTabela == 5 else \
+                    ["ID Tipo Evento", "Descrição"] if opcaoTabela == 6 else \
+                    ["ID Ingresso", "ID Evento", "ID Vento", "Valor Ingresso", "Quantidade"]
+            )
+            table = PrettyTable(headers)
+            for record in resultado:
+                row = list(record.values())
+                while len(row) < len(headers):
+                    row.append(None)
+                table.add_row(row)
 
+            print(table)
+            
         input("\nAperte qualquer tecla para continuar")
 
 # Usage
