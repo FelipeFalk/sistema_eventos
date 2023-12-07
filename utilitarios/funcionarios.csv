@@ -1,0 +1,6 @@
+idFuncionario,nome,email,idCargo
+1,Funcionário 1,funcionario1@example.com,1
+2,Funcionário 2,funcionario2@example.com,2
+3,Funcionário 3,funcionario3@example.com,2
+4,Funcionário 4,funcionario4@example.com,3
+5,Funcionário 5,funcionario5@example.com,4
