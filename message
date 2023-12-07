@@ -1,0 +1,69 @@
+// Create Clientes
+LOAD CSV WITH HEADERS FROM 'file:///clientes.csv' AS row
+CREATE (:Cliente {
+   idCliente: row.idCliente,
+   nome: row.nome,
+   email: row.email,
+   telefone: row.telefone
+});
+
+// Create TipoEventos
+LOAD CSV WITH HEADERS FROM 'file:///tipoeventos.csv' AS row
+CREATE (:TipoEvento {idTipoEvento: row.idTipoEvento, descricao: row.descricao});
+
+// Create Eventos
+LOAD CSV WITH HEADERS FROM 'file:///eventos.csv' AS row
+CREATE (:Evento {idEvento: row.idEvento, local: row.local, maxIngressos: row.maxIngressos, data: date(row.data)});
+
+// Connect Eventos to TipoEventos
+LOAD CSV WITH HEADERS FROM 'file:///eventos.csv' AS row
+MATCH (e:Evento {idEvento: row.idEvento}), (te:TipoEvento {idTipoEvento: row.idTipoEvento})
+CREATE (e)-[:PERTENCE_AO_TIPO]->(te);
+
+// Create Cargos
+LOAD CSV WITH HEADERS FROM 'file:///cargos.csv' AS row
+CREATE (:Cargo {idCargo: row.idCargo, descricao: row.descricao});
+
+// Create Funcionarios
+LOAD CSV WITH HEADERS FROM 'file:///funcionarios.csv' AS row
+CREATE (:Funcionario {idFuncionario: row.idFuncionario, nome: row.nome, email: row.email});
+
+// Connect Funcionarios to Cargos
+LOAD CSV WITH HEADERS FROM 'file:///funcionarios.csv' AS row
+MATCH (f:Funcionario {idFuncionario: row.idFuncionario}), (c:Cargo {idCargo: row.idCargo})
+CREATE (f)-[:OCUPA]->(c);
+
+// Create Vendas
+LOAD CSV WITH HEADERS FROM 'file:///vendas.csv' AS row
+CREATE (:Venda {idVenda: row.idVenda, dtCompra: date(row.dtCompra)});
+
+// Connect Vendas to Clientes and Funcionarios
+LOAD CSV WITH HEADERS FROM 'file:///vendas.csv' AS row
+MATCH (v:Venda {idVenda: row.idVenda}), (c:Cliente {idCliente: row.idCliente}), (f:Funcionario {idFuncionario: row.idFuncionario})
+CREATE (v)-[:REALIZADA_POR]->(f),
+       (v)-[:PERTENCE_AO_CLIENTE]->(c);
+
+// Create Ingressos
+LOAD CSV WITH HEADERS FROM 'file:///ingressos.csv' AS row
+CREATE (:Ingresso {idIngresso: row.idIngresso, valorIngresso: row.valorIngresso, quantidade: row.quantidade});
+
+// Connect Ingressos to Eventos and Vendas
+LOAD CSV WITH HEADERS FROM 'file:///ingressos.csv' AS row
+MATCH (i:Ingresso {idIngresso: row.idIngresso}), (e:Evento {idEvento: row.idEvento}), (v:Venda {idVenda: row.idVenda})
+CREATE (i)-[:PARA_EVENTO]->(e),
+       (i)-[:VENDIDO_EM]->(v);
+
+MATCH (e:Evento {idEvento: '1'}), (te:TipoEvento {idTipoEvento: '1'})
+CREATE (e)-[:PERTENCE_AO_TIPO]->(te);
+
+MATCH (e:Evento {idEvento: '2'}), (te:TipoEvento {idTipoEvento: '2'})
+CREATE (e)-[:PERTENCE_AO_TIPO]->(te);
+
+MATCH (e:Evento {idEvento: '3'}), (te:TipoEvento {idTipoEvento: '3'})
+CREATE (e)-[:PERTENCE_AO_TIPO]->(te);
+
+MATCH (e:Evento {idEvento: '4'}), (te:TipoEvento {idTipoEvento: '4'})
+CREATE (e)-[:PERTENCE_AO_TIPO]->(te);
+
+MATCH (e:Evento {idEvento: '5'}), (te:TipoEvento {idTipoEvento: '5'})
+CREATE (e)-[:PERTENCE_AO_TIPO]->(te);
