@@ -43,6 +43,9 @@ def solicita_informacoes(tipo, *infos):
         if _infos == "chave":
             entrada = input(f"Informe o ID do {tipo}:")
 
+        elif _infos.startswith("id"):
+            entrada = int(input(f"Informe o ID do {tipo}:"))
+
         elif _infos == "nome":
             entrada = input(f"Informe o nome completo do {tipo}:")
         

@@ -90,28 +90,59 @@ try:
         if opcaoMenu == 0:
             cond = False
 
-        # ... (remaining code)
-
         #Cadastro
         elif opcaoMenu == 1:
             opcaoTabela = showTabelas()
 
             inserts = {
-                1: ("Cliente", "nome", "email", "telefone"),
-                2: ("Funcionario", "nome", "email"),
-                3: ("Cargo", "descricao"),
-                4: ("Venda", "idcliente", "idfuncionario", "dtcompra"),
-                5: ("Evento", "local", "maxingressos", "data", "idtipo"),
-                6: ("TipoEvento", "descricao"),
-                7: ("Ingresso", "idevento", "idvenda", "valoringresso", "quantidade"),
+                1: ("Cliente", "idCliente", "nome", "email", "telefone"),
+                2: ("Funcionario", "idFuncionario","nome", "email"),
+                3: ("Cargo", "idCargo","descricao"),
+                4: ("Venda", "idVenda","idcliente", "idfuncionario", "dtcompra"),
+                5: ("Evento", "idEvento","local", "maxingressos", "data", "idtipo"),
+                6: ("TipoEvento", "idTipoEvento","descricao"),
+                7: ("Ingresso", "idIngresso","idevento", "idvenda", "valoringresso", "quantidade"),
             }
 
             if opcaoTabela in inserts:
                 table_name, *properties = inserts[opcaoTabela]
                 values = solicita_informacoes(table_name, *properties)
+
+                #max_id_query = f"MATCH ({table_name.lower()}:{table_name}) RETURN max({table_name.lower()}.id{table_name}) AS max_id LIMIT 1"
+                #result = neo4j_conn.execute(max_id_query)
+
+                #Não estou conseguindo usar o Maior Id
+
                 properties_str = ', '.join(properties)
-                query = f"CREATE ({table_name.lower()}:{table_name} {{{properties_str}: $values}})"
-                neo4j_conn.execute(query, values=values)
+                values_str = ','.join(f"'{valor}'" for valor in values)
+
+                pairs = [f"{properties[i]}: '{values[i]}'" for i in range(len(properties))]
+                pairs_str = ', '.join(pairs)
+
+                query = f"CREATE ({table_name.lower()}:{table_name} {{{pairs_str}}})"
+                neo4j_conn.execute(query)
+
+                if opcaoTabela == 2: #Conecta Funcionario com Cargos
+                    table_name = "Cargo"
+                    chave_value = int(input(f"Digite o ID {table_name}"))
+                    id_property = f"id{table_name}"
+                    query = f"""MATCH (funcionario:Funcionario {{idFuncionario: toInteger({values[0]})}}), (cargo:Cargo {{idCargo: toInteger({chave_value})}})
+                    CREATE (funcionario)-[:OCUPA]->(cargo)"""
+                    neo4j_conn.execute(query)
+
+                elif opcaoTabela == 4:
+                    table_name = "Cliente"
+                    chave_value = int(input(f"Digite o ID {table_name}"))
+                    table_name = "Funcionario"
+                    chave_value2 = int(input(f"Digite o ID {table_name}"))
+                elif opcaoTabela == 5:
+                    table_name = "TipoEvento"
+                    chave_value = int(input(f"Digite o ID {table_name}"))
+                elif opcaoTabela == 7:
+                    table_name = "Evento"
+                    chave_value = int(input(f"Digite o ID {table_name}"))
+                    table_name = "Venda"
+                    chave_value2 = int(input(f"Digite o ID {table_name}"))
 
         #Atualização
         elif opcaoMenu == 2:
