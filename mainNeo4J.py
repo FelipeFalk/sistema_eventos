@@ -29,37 +29,54 @@ class Neo4jConnection:
 def showConsultas(opcaoTabela, connection):
     queries = {
         1: "MATCH (c:Cliente) RETURN c ORDER BY c.idCliente ASC",
-        2: "MATCH (f:Funcionario) RETURN f ORDER BY f.idFuncionario ASC",
+        2: """MATCH (f:Funcionario)-[:OCUPA]->(c:Cargo)
+            RETURN f.idFuncionario AS ID_Funcionario, f.nome AS Nome, f.email AS Email, c.idCargo AS ID_Cargo
+            ORDER BY f.idFuncionario ASC""",
         3: "MATCH (ca:Cargo) RETURN ca ORDER BY ca.idCargo ASC",
-        4: "MATCH (v:Venda) RETURN v ORDER BY v.idVendas ASC",
-        5: "MATCH (e:Evento) RETURN e ORDER BY e.idEvento ASC",
+        4: """MATCH (v:Venda)-[:REALIZADA_POR]->(f:Funcionario), (v)-[:PERTENCE_AO_CLIENTE]->(c:Cliente)
+            RETURN v.idVenda AS ID_Venda, c.idCliente AS ID_Cliente, f.idFuncionario AS ID_Funcionario, v.dtCompra AS DT_Compra
+            ORDER BY v.idVenda ASC""",
+        5: """MATCH (e:Evento)-[:PERTENCE_AO_TIPO]->(te:TipoEvento)
+            RETURN e.idEvento AS ID_Evento, e.local AS Local, e.maxIngressos AS Maximo_Ingressos, e.data AS Data, te.idTipoEvento AS ID_Tipo
+            ORDER BY e.idEvento ASC""",
         6: "MATCH (te:TipoEvento) RETURN te ORDER BY te.idTipoEvento ASC",
-        7: "MATCH (i:Ingresso) RETURN i ORDER BY i.idIngresso ASC",
+        7: """MATCH (i:Ingresso)-[:PARA_EVENTO]->(e:Evento) MATCH (i)-[:VENDIDO_EM]->(v:Venda)
+            RETURN i.idIngresso AS ID_Ingresso, v.idVenda AS ID_Venda, e.idEvento AS ID_Evento, i.valorIngresso AS Valor_Ingresso, i.quantidade AS Quantidade
+            ORDER BY i.idIngresso ASC""",
     }
 
     with connection._driver.session() as session:
         if opcaoTabela in queries:
             result = session.run(queries[opcaoTabela])
-            resultado = [record[0] for record in result]
+            if opcaoTabela in (2, 4, 5, 7):
+                resultado = result
+            else:
+                resultado = [record[0] for record in result]
             headers = (
-                    ["ID Cliente", "Nome", "Email", "Telefone"] if opcaoTabela == 1 else \
-                    ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoTabela == 2 else \
-                    ["ID Cargo", "Descrição"] if opcaoTabela == 3 else \
-                    ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoTabela == 4 else \
-                    ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"] if opcaoTabela == 5 else \
-                    ["ID Tipo Evento", "Descrição"] if opcaoTabela == 6 else \
-                    ["ID Ingresso", "ID Evento", "ID Vento", "Valor Ingresso", "Quantidade"]
+                ["ID Cliente", "Nome", "Email", "Telefone"] if opcaoTabela == 1 else \
+                ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoTabela == 2 else \
+                ["ID Cargo", "Descrição"] if opcaoTabela == 3 else \
+                ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoTabela == 4 else \
+                ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"] if opcaoTabela == 5 else \
+                ["ID Tipo Evento", "Descrição"] if opcaoTabela == 6 else \
+                ["ID Ingresso", "ID Evento", "ID Venda", "Valor Ingresso", "Quantidade"]
             )
             table = PrettyTable(headers)
             for record in resultado:
-                row = list(record.values())
-                while len(row) < len(headers):
-                    row.append(None)
-                table.add_row(row)
+                row = [record["idCliente"], record["nome"], record["email"], record["telefone"]] if opcaoTabela == 1 else \
+                    [record["ID_Funcionario"], record["Nome"], record["Email"], record["ID_Cargo"]] if opcaoTabela == 2 else \
+                    [record["idCargo"], record["descricao"]] if opcaoTabela == 3 else \
+                    [record["ID_Venda"], record["ID_Cliente"], record["ID_Funcionario"], record["DT_Compra"].strftime("%Y-%m-%d %H:%M:%S")] if opcaoTabela == 4 else \
+                    [record["ID_Evento"], record["Local"], record["Maximo_Ingressos"], record["Data"].strftime("%Y-%m-%d %H:%M:%S"), record["ID_Tipo"]] if opcaoTabela == 5 else \
+                    [record["idTipoEvento"], record["descricao"]] if opcaoTabela == 6 else \
+                    [record["ID_Ingresso"], record["ID_Evento"], record["ID_Venda"], record["Valor_Ingresso"], record["Quantidade"]] if opcaoTabela == 7 else None
+
+                if row is not None:
+                    table.add_row(row)
 
             print(table)
-            
-        input("\nAperte qualquer tecla para continuar")
+                
+    input("\nAperte qualquer tecla para continuar")
 
 # Usage
 try:
@@ -135,9 +152,13 @@ try:
             if opcaoTabela in deletions:
                 table_name = deletions[opcaoTabela]
                 showConsultas(opcaoTabela, neo4j_conn)
-                values = solicita_informacoes(table_name, "chave")
-                query = f"MATCH ({table_name.lower()}:{table_name} {{id{table_name}: $values.chave}}) DETACH DELETE {table_name.lower()}"
-                neo4j_conn.execute(query, values=values)
+
+                id_property = f"id{table_name}"
+                chave_value = int(input(f"Digite o ID {table_name}"))
+                query = f"MATCH ({table_name.lower()}:{table_name} {{{id_property}: {chave_value}}}) DETACH DELETE {table_name.lower()}"
+
+                neo4j_conn.execute(query)
+
 
         #Consulta
         elif opcaoMenu == 4:
