@@ -66,8 +66,8 @@ def showConsultas(opcaoTabela, connection):
                 row = [record["idCliente"], record["nome"], record["email"], record["telefone"]] if opcaoTabela == 1 else \
                     [record["ID_Funcionario"], record["Nome"], record["Email"], record["ID_Cargo"]] if opcaoTabela == 2 else \
                     [record["idCargo"], record["descricao"]] if opcaoTabela == 3 else \
-                    [record["ID_Venda"], record["ID_Cliente"], record["ID_Funcionario"], record["DT_Compra"].strftime("%Y-%m-%d %H:%M:%S")] if opcaoTabela == 4 else \
-                    [record["ID_Evento"], record["Local"], record["Maximo_Ingressos"], record["Data"].strftime("%Y-%m-%d %H:%M:%S"), record["ID_Tipo"]] if opcaoTabela == 5 else \
+                    [record["ID_Venda"], record["ID_Cliente"], record["ID_Funcionario"], str(record["DT_Compra"])] if opcaoTabela == 4 else \
+                    [record["ID_Evento"], record["Local"], record["Maximo_Ingressos"], str(record["Data"]), record["ID_Tipo"]] if opcaoTabela == 5 else \
                     [record["idTipoEvento"], record["descricao"]] if opcaoTabela == 6 else \
                     [record["ID_Ingresso"], record["ID_Evento"], record["ID_Venda"], record["Valor_Ingresso"], record["Quantidade"]] if opcaoTabela == 7 else None
 
@@ -99,9 +99,9 @@ try:
                 2: ("Funcionario", "idFuncionario","nome", "email", "idCargo"),
                 3: ("Cargo", "idCargo","descricao"),
                 4: ("Venda", "idVenda","idCliente", "idFuncionario", "dtcompra"),
-                5: ("Evento", "idEvento","local", "maxingressos", "data", "idTipo"),
+                5: ("Evento", "idEvento","local", "maxingressos", "data", "idTipoEvento"),
                 6: ("TipoEvento", "idTipoEvento","descricao"),
-                7: ("Ingresso", "idIngresso","idevento", "idvenda", "valoringresso", "quantidade"),
+                7: ("Ingresso", "idIngresso","idEvento", "idVenda", "valoringresso", "quantidade"),
             }
 
             if opcaoTabela in inserts:
@@ -123,72 +123,39 @@ try:
                 neo4j_conn.execute(query)
 
                 if opcaoTabela == 2: #Conecta Funcionario com Cargos
-                    table_name = "Cargo"
-                    chave_value = int(input(f"Digite o ID {table_name}"))
-                    id_property = f"id{table_name}"
-                    query = f"""MATCH (funcionario:Funcionario {{idFuncionario: toInteger({values[0]})}}), (cargo:Cargo {{idCargo: toInteger({chave_value})}})
+                    #table_name = "Cargo"
+                    #chave_value = int(input(f"Digite o ID {table_name}"))
+                    query = f"""MATCH (funcionario:Funcionario {{idFuncionario: '{values[0]}'}}), (cargo:Cargo {{idCargo: '{values[3]}'}})
                     CREATE (funcionario)-[:OCUPA]->(cargo)"""
                     neo4j_conn.execute(query)
 
                 elif opcaoTabela == 4:
-                    table_name = "Cliente"
-                    chave_value = int(input(f"Digite o ID {table_name}"))
-                    table_name = "Funcionario"
-                    chave_value2 = int(input(f"Digite o ID {table_name}"))
+                    #table_name = "Cliente"
+                    #chave_value = int(input(f"Digite o ID {table_name}"))
+                    #table_name2 = "Funcionario"
+                    #chave_value2 = int(input(f"Digite o ID {table_name}"))
+                    query = f"""MATCH (venda:Venda {{idVenda: '{values[0]}'}}), (cliente:Cliente {{idCliente: '{values[1]}'}}), (funcionario:Funcionario {{idFuncionario: '{values[2]}'}})
+                                        CREATE (venda)-[:REALIZADA_POR]->(funcionario),
+                                               (venda)-[:PERTENCE_AO_CLIENTE]->(cliente)"""
+                    neo4j_conn.execute(query)
                 elif opcaoTabela == 5:
-                    table_name = "TipoEvento"
-                    chave_value = int(input(f"Digite o ID {table_name}"))
+                    #table_name = "TipoEvento"
+                    #chave_value = int(input(f"Digite o ID {table_name}"))
+                    query = f"""MATCH (evento:Evento {{idEvento: '{values[0]}'}}), (tipoEvento:TipoEvento {{idTipoEvento: '{values[4]}'}})
+                                        CREATE (evento)-[:PERTENCE_AO_TIPO]->(tipoEvento)"""
+                    neo4j_conn.execute(query)
                 elif opcaoTabela == 7:
-                    table_name = "Evento"
-                    chave_value = int(input(f"Digite o ID {table_name}"))
-                    table_name = "Venda"
-                    chave_value2 = int(input(f"Digite o ID {table_name}"))
-
+                    #table_name = "Evento"
+                    #chave_value = int(input(f"Digite o ID {table_name}"))
+                    #table_name = "Venda"
+                    #chave_value2 = int(input(f"Digite o ID {table_name}"))
+                    query = f"""MATCH (ingresso:Ingresso {{idIngresso: '{values[0]}'}}), (evento:Evento {{idEvento: '{values[1]}'}}), (venda:Venda {{idVenda: '{values[2]}'}})
+                                                            CREATE (ingresso)-[:PARA_EVENTO]->(evento),
+                                                                   (ingresso)-[:VENDIDO_EM]->(venda)"""
+                    neo4j_conn.execute(query)
         #Atualização
         elif opcaoMenu == 2:
-            opcaoTabela = showTabelas()
-
-            updates = {
-                1: ("Cliente", "nome", "email", "telefone"),
-                2: ("Funcionario", "nome", "email"),
-                3: ("Cargo", "descricao"),
-                4: ("Venda", "idcliente", "idfuncionario", "dtcompra"),
-                5: ("Evento", "local", "maxingressos", "data", "idtipo"),
-                6: ("TipoEvento", "descricao"),
-                7: ("Ingresso", "idevento", "idvenda", "valoringresso", "quantidade"),
-            }
-
-            if opcaoTabela in updates:
-                table_name, *properties = updates[opcaoTabela]
-                showConsultas(opcaoTabela, neo4j_conn)
-                values = solicita_informacoes(table_name, *["chave"] + properties)
-                properties_str = ', '.join([f"{prop} = $values.{prop}" for prop in properties])
-                query = f"MATCH ({table_name.lower()}:{table_name} {{id{table_name}: $values.chave}}) SET {properties_str}"
-                neo4j_conn.execute(query, values=values)
-
-        #Remoção
-        elif opcaoMenu == 3:
-            opcaoTabela = showTabelas()
-
-            deletions = {
-                1: "Cliente",
-                2: "Funcionario",
-                3: "Cargo",
-                4: "Venda",
-                5: "Evento",
-                6: "TipoEvento",
-                7: "Ingresso",
-            }
-
-            if opcaoTabela in deletions:
-                table_name = deletions[opcaoTabela]
-                showConsultas(opcaoTabela, neo4j_conn)
-
-                id_property = f"id{table_name}"
-                chave_value = int(input(f"Digite o ID {table_name}"))
-                query = f"MATCH ({table_name.lower()}:{table_name} {{{id_property}: {chave_value}}}) DETACH DELETE {table_name.lower()}"
-
-                neo4j_conn.execute(query)
+            print("em construção")
 
 
         #Consulta
@@ -198,18 +165,45 @@ try:
 
         #Relatórios    
         elif opcaoMenu == 5:
-            opcaoRelatorio = showRelatorio()
+            queries = {
 
-            reports = {
-                1: "MATCH (e:Evento) RETURN e",
-                # Add more cases for other reports...
+                1: """MATCH (f:Funcionario)-[:OCUPA]->(c:Cargo)
+            RETURN f.idFuncionario AS ID_Funcionario, f.nome AS Nome, f.email AS Email, c.idCargo AS ID_Cargo
+            ORDER BY f.idFuncionario ASC""",
+                2: """MATCH (v:Venda)-[:REALIZADA_POR]->(f:Funcionario), (v)-[:PERTENCE_AO_CLIENTE]->(c:Cliente)
+            RETURN v.idVenda AS ID_Venda, c.idCliente AS ID_Cliente, f.idFuncionario AS ID_Funcionario, v.dtCompra AS DT_Compra
+            ORDER BY v.idVenda ASC""",
+                3: """MATCH (e:Evento)-[:PERTENCE_AO_TIPO]->(te:TipoEvento)
+            RETURN e.idEvento AS ID_Evento, e.local AS Local, e.maxIngressos AS Maximo_Ingressos, e.data AS Data, te.idTipoEvento AS ID_Tipo
+            ORDER BY e.idEvento ASC"""
             }
 
-            if opcaoRelatorio in reports:
-                query = reports[opcaoRelatorio]
-                result = neo4j_conn.execute(query)
-                resultado = [record[0] for record in result]
-                print(tabulate(resultado, headers=["ID Evento", "Local", "Data do Evento", "Limite Ingressos", "Ingressos Vendidos", "Receita Total"]))
+            with neo4j_conn._driver.session() as session:
+                opcaoRelatorio = showRelatorio()
+                if opcaoRelatorio in queries:
+                    result = session.run(queries[opcaoRelatorio])
+                    if opcaoRelatorio in (2, 4, 5, 7):
+                        resultado = result
+                    else:
+                        resultado = [record[0] for record in result]
+                    headers = (
+                        ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoRelatorio ==  1 else \
+                        ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoRelatorio == 2 else
+                        ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"] if opcaoRelatorio == 3 else None
+
+                    )
+                    table = PrettyTable(headers)
+                    for record in resultado:
+                        row = [record["ID_Funcionario"], record["Nome"], record["Email"], record["ID_Cargo"]] if opcaoRelatorio == 1 else \
+                                [record["ID_Venda"], record["ID_Cliente"], record["ID_Funcionario"], str(record["DT_Compra"])] if opcaoRelatorio == 2 else \
+                                [record["ID_Evento"], record["Local"], record["Maximo_Ingressos"], str(record["Data"]), record["ID_Tipo"]] if opcaoRelatorio == 3 else None
+
+                        if row is not None:
+                            table.add_row(row)
+
+                    print(table)
+
+            input("\nAperte qualquer tecla para continuar")
 
         os.system("cls")
 

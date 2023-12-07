@@ -79,6 +79,9 @@ def solicita_informacoes(tipo, *infos):
         elif _infos == "data_compra":
             entrada = input(f'Informe a data de compra da {tipo} (yyyy-mm-dd):')
 
+        elif _infos == "data":
+            entrada = input(f'Informe a data do {tipo} (yyyy-mm-dd):')
+
         elif _infos == "local":
             entrada = input(f'Informe o local do {tipo}:')
 
@@ -98,9 +101,9 @@ def showRelatorio():
 
     #os.system("cls")
     print("Relatórios - Opções")
-    print("1 - Relatório de Vendas por Eventos")
-    print("2 - Relatório de Vendas por Funcionário")
-    print("3 - Relatório de Quantidade de Eventos por Tipo")
+    print("1 - Relatório de Funcionarios")
+    print("2 - Relatório de Vendas")
+    print("3 - Relatório de Eventos")
     print("0 - Sair")
 
     op = int(input("Informe a tabela desejada\n"))
