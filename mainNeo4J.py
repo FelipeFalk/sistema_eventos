@@ -166,46 +166,48 @@ try:
         #Relatórios    
         elif opcaoMenu == 5:
             queries = {
-
                 1: """MATCH (f:Funcionario)-[:OCUPA]->(c:Cargo)
-            RETURN f.idFuncionario AS ID_Funcionario, f.nome AS Nome, f.email AS Email, c.idCargo AS ID_Cargo
-            ORDER BY f.idFuncionario ASC""",
+                        RETURN f.idFuncionario AS ID_Funcionario, f.nome AS Nome, f.email AS Email, c.idCargo AS ID_Cargo
+                        ORDER BY f.idFuncionario ASC""",
                 2: """MATCH (v:Venda)-[:REALIZADA_POR]->(f:Funcionario), (v)-[:PERTENCE_AO_CLIENTE]->(c:Cliente)
-            RETURN v.idVenda AS ID_Venda, c.idCliente AS ID_Cliente, f.idFuncionario AS ID_Funcionario, v.dtCompra AS DT_Compra
-            ORDER BY v.idVenda ASC""",
+                        RETURN v.idVenda AS ID_Venda, c.idCliente AS ID_Cliente, f.idFuncionario AS ID_Funcionario, v.dtCompra AS DT_Compra
+                        ORDER BY v.idVenda ASC""",
                 3: """MATCH (e:Evento)-[:PERTENCE_AO_TIPO]->(te:TipoEvento)
-            RETURN e.idEvento AS ID_Evento, e.local AS Local, e.maxIngressos AS Maximo_Ingressos, e.data AS Data, te.idTipoEvento AS ID_Tipo
-            ORDER BY e.idEvento ASC"""
+                        RETURN e.idEvento AS ID_Evento, e.local AS Local, e.maxIngressos AS Maximo_Ingressos, e.data AS Data, te.idTipoEvento AS ID_Tipo
+                        ORDER BY e.idEvento ASC"""
             }
 
             with neo4j_conn._driver.session() as session:
                 opcaoRelatorio = showRelatorio()
                 if opcaoRelatorio in queries:
                     result = session.run(queries[opcaoRelatorio])
-                    if opcaoRelatorio in (2, 4, 5, 7):
-                        resultado = result
-                    else:
-                        resultado = [record[0] for record in result]
-                    headers = (
-                        ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoRelatorio ==  1 else \
-                        ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoRelatorio == 2 else
-                        ["ID Evento", "Local", "Maximo Ingressos", "Data", "Tipo Evento"] if opcaoRelatorio == 3 else None
+                    resultado = result if opcaoRelatorio in (2, 4, 5, 7) else result.values()
 
+                    headers = (
+                        ["ID Funcionário", "Nome", "Email", "ID Cargo"] if opcaoRelatorio == 1 else
+                        ["ID Vendas", "ID Cliente", "ID Funcionario", "Data Compra"] if opcaoRelatorio == 2 else
+                        ["ID Evento", "Local", "Maximo Ingressos", "Data",
+                         "Tipo Evento"] if opcaoRelatorio == 3 else None
                     )
+
                     table = PrettyTable(headers)
                     for record in resultado:
-                        row = [record["ID_Funcionario"], record["Nome"], record["Email"], record["ID_Cargo"]] if opcaoRelatorio == 1 else \
-                                [record["ID_Venda"], record["ID_Cliente"], record["ID_Funcionario"], str(record["DT_Compra"])] if opcaoRelatorio == 2 else \
-                                [record["ID_Evento"], record["Local"], record["Maximo_Ingressos"], str(record["Data"]), record["ID_Tipo"]] if opcaoRelatorio == 3 else None
+                        if isinstance(record, dict):
+                            row = [record["ID_Funcionario"], record["Nome"], record["Email"],
+                                   record["ID_Cargo"]] if opcaoRelatorio == 1 else \
+                                [record["ID_Venda"], record["ID_Cliente"], record["ID_Funcionario"],
+                                 str(record["DT_Compra"])] if opcaoRelatorio == 2 else \
+                                    [record["ID_Evento"], record["Local"], record["Maximo_Ingressos"],
+                                     str(record["Data"]), record["ID_Tipo"]] if opcaoRelatorio == 3 else None
 
-                        if row is not None:
-                            table.add_row(row)
+                            if row is not None:
+                                table.add_row(row)
 
                     print(table)
 
             input("\nAperte qualquer tecla para continuar")
+            os.system("cls")
 
-        os.system("cls")
 
 finally:
     neo4j_conn.close()
