@@ -1,6 +1,7 @@
 1. Baixar e instalar o Neo4J desktop: https://neo4j.com/download-thanks-desktop/?edition=desktop&flavour=winstall64&release=1.5.9&offline=true
 2. Criar um Database
-3. Executar o script de criação e carregamento, os arquivos csvs devem ser salvos previamente no diretório .\Neo4J\Neo4JData\relate-data\dbmss\dbms(Aqui vai depender do seu projeto)\import
+3. Executar o script de criação e carregamento (arquivo message no repositório), os arquivos csvs devem ser salvos previamente no diretório .\Neo4J\Neo4JData\relate-data\dbmss\dbms(Aqui vai depender do seu projeto)\import
+3.1 Os arquivos csvs podem ser gerados pelo bat disponibilizado (echo.bat), porem toda geração é necessário alterar os headers tirando os espaços no final. Recomendação é utilizar os csvs disponibilizados.
 4. Instalar o Python
 5. Alterar a URI, Usuário e Senha do mainNeo4J.py
 6. Instalar as dependencias do Python no projeto (pip install -r requirements.txt, pip install neo4j, pip install tabulate, pip install prettytable) 
